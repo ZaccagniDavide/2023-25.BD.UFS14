@@ -20,6 +20,17 @@ def get_pdf_link(report_url):
     else:
         print(f"Errore nella richiesta del report: {response.status_code} - {response.reason}")
         return 'N/A: status code non 200'
+    
+def download_pdf(pdf_url):
+    response = requests.get(pdf_url)
+    if response.status_code == 200:
+        pdf_path = 'report.pdf'
+        with open(pdf_path, 'wb') as file:
+            file.write(response.content)
+        return pdf_path
+    else:
+        print(f"Errore nel download del PDF: {response.status_code} - {response.reason}")
+        return None
 
 @app.route(route="MyHttpTrigger", auth_level=func.AuthLevel.ANONYMOUS)
 def MyHttpTrigger(req: func.HttpRequest) -> func.HttpResponse:
@@ -30,14 +41,18 @@ def MyHttpTrigger(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse("report_url: parametro obbligatorio")
     
     # return func.HttpResponse(f"report_url: {report_url}")
-
+  
     pdf_data=get_pdf_link(report_url)
+
+    if 'N/A' in pdf_data:
+        return func.HttpResponse("pdf_data: senza non si procede")
     
-    response_payload = {"pdf_data": pdf_data, "report_url ": report_url}
+    response_download=download_pdf(pdf_data)
+    response_payload = {"pdf_data": pdf_data, "report_url ": report_url, "response_download": response_download}
     return func.HttpResponse(
         json.dumps(response_payload),
         mimetype="application/json",
     )
-
+    
 
 
