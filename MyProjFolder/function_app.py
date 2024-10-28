@@ -4,6 +4,7 @@ import json
 import logging
 from bs4 import BeautifulSoup
 import requests
+import os
 
 app = func.FunctionApp()
 
@@ -48,7 +49,8 @@ def MyHttpTrigger(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse("pdf_data: senza non si procede")
     
     response_download=download_pdf(pdf_data)
-    response_payload = {"pdf_data": pdf_data, "report_url ": report_url, "response_download": response_download}
+    report_path=os.path.abspath(response_download)
+    response_payload = {"pdf_data": pdf_data, "report_url ": report_url, "report_path": report_path}
     return func.HttpResponse(
         json.dumps(response_payload),
         mimetype="application/json",
