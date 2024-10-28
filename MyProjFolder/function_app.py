@@ -42,13 +42,20 @@ def MyHttpTrigger(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse("report_url: parametro obbligatorio")
     
     # return func.HttpResponse(f"report_url: {report_url}")
-  
-    pdf_data=get_pdf_link(report_url)
-
+    try:
+        pdf_data=get_pdf_link(report_url)
+    except Exception as error:
+        return func.HttpResponse(f"pdf_data error: {error}")
+    
     if 'N/A' in pdf_data:
         return func.HttpResponse("pdf_data: senza non si procede")
     
-    response_download=download_pdf(pdf_data)
+
+    try:
+        response_download=download_pdf(pdf_data)
+
+    except Exception as error:
+        return func.HttpResponse(f"pdf_data error: {error}")
     report_path=os.path.abspath(response_download)
     response_payload = {"pdf_data": pdf_data, "report_url ": report_url, "report_path": report_path}
     return func.HttpResponse(
