@@ -33,7 +33,11 @@ def MyHttpTrigger(req: func.HttpRequest) -> func.HttpResponse:
 
     pdf_data=get_pdf_link(report_url)
     
-    return func.HttpResponse(f"pdf_data: {pdf_data}")
+    response_payload = {"pdf_data": pdf_data, "report_url ": report_url}
+    return func.HttpResponse(
+        json.dumps(response_payload),
+        mimetype="application/json",
+    )
 
 
 
